@@ -7,7 +7,10 @@ defmodule Issues.CLI do
   table of the last _n_ issues in a github repository
   """
 
-  def run(argv), do: parse_args(argv)
+  def run(argv), do:
+    argv
+    |> parse_args
+    |> process
 
   @doc """
   `argv` can be -h or --help, which returns :help
@@ -32,5 +35,15 @@ defmodule Issues.CLI do
       _ -> :help
     end
   end
+
+  def process(:help) do
+    IO.puts """
+      usage: issues <user> <project> [ count | #{@default_count} ]
+    """
+    System.halt(0)
+  end
+
+  def process({user, project, _count}), do:
+    Issues.GithubIssues.fetch(user, project)
 
 end
