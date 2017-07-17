@@ -2,7 +2,7 @@ defmodule CliTest do
   use ExUnit.Case
   doctest Issues.CLI
 
-  import Issues.CLI, only: [parse_args: 1]
+  import Issues.CLI, only: [parse_args: 1, sort_into_ascending_order: 1]
 
   test ":help returned by option parsing with -h and --help options" do
     assert parse_args(["-h", "anything"]) == :help
@@ -15,4 +15,15 @@ defmodule CliTest do
   test "count is defaulted if two values given", do:
     assert parse_args(["user", "project"]) == {"user", "project", 4}
 
+  test "sort ascending orders the correct way" do
+    result = fake_created_at_list(["c", "a", "b"])
+              |>sort_into_ascending_order
+    issues = for issue <- result, do: Map.get(issue, "created_at")
+    assert issues == ~w{a b c}
+  end
+
+  defp fake_created_at_list(values) do
+    for value <- values,
+    do: %{"created_at" => value, "other_data" => "xxx"}
+  end
 end
